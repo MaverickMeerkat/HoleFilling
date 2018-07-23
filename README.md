@@ -9,8 +9,7 @@ Hole filling solution, written in C#. Divided into 3 separate project:
 The class library contains 3 main object:
 
 * ImageHandler - loads an image using Emgu (OpenCv for .NET), grayscales it, and converts it into a Pixel Matrix, each containing a float value between [0,1]. Can also be used to create missing values (holes) in it (-1), and to save changes to the file or to a new file.
-* HoleFinder - Takes a Matrix and finds the hole (boundary of the hole, minimal covering rectangle, and the hole-pixels themselves) in it. Uses Moore-Tracing algorithm as default, but can be supplied other algorithms as well. **Assumes only 1 hole per image** (In any case will find the closest hole to the top-left corner). **Assumes no holes inside the hole** (i.e. no donut shaped holes).
-* HoleFixer - Takes a Matrix and a Hole, and fixes the hole. Default fix is using a weight function. Default weight function is implemented.
+* HoleFinder - Takes a Matrix and finds the hole (boundary of the hole, minimal covering rectangle, and the hole-pixels themselves) in it. Uses Moore-Tracing algorithm as default, but can be supplied other algorithms as well. **Assumes only 1 hole per image** (In any case will find the closest hole to the top-left corner).
 
   * Weight Function - hole pixel new value is weighted averaged between of distance between it and all boundary pixels
   * Average - hole pixel new value is the average of all boundary pixels
