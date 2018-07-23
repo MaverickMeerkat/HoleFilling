@@ -1,26 +1,29 @@
 ﻿using HoleFilling;
+using HoleFilling.DataObjects;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
-namespace ConsoleApp1
+namespace HoleFillingConsole
 {
     class Program
     {
         static void Main(string[] args)
         {
+            ImageHandler imgHandler = null;
+            HoleFinder holeFinder = null;
+            HoleFixer holeFixer = null;
+
             string key = "";
-            ImageHandler img_handler = null;
-            HoleHandler hole_handler = null;
             while (key != "q")
             {
                 Console.WriteLine("Please choose what to do:");
                 Console.WriteLine(" (L)oad an image ");
-                if (img_handler != null) Console.WriteLine(" (E)nter a hole location ");
-                if (img_handler?.GetImageMatrix().IsHoled == true) Console.WriteLine(" (F)ind boundary of hole ");
-                if (img_handler?.GetImageMatrix().IsHoled == true) Console.WriteLine(" (T)weak weight function parameters");
-                if (hole_handler?.Boundary != null) Console.WriteLine(" (M)end hole ");
-                if (img_handler != null) Console.WriteLine(" (S)ave the image ");
+                if (imgHandler != null) Console.WriteLine(" (E)nter a hole location ");
+                if (imgHandler?.Matrix.IsHoled == true) Console.WriteLine(" (F)ind hole ");
+                if (holeFinder?.Hole != null) Console.WriteLine(" (M)end hole ");
+                if (imgHandler != null) Console.WriteLine(" (S)ave the image ");
                 Console.WriteLine(" (Q)uit ");
 
                 key = Console.ReadLine();
@@ -28,90 +31,105 @@ namespace ConsoleApp1
                 switch (key.ToUpper())
                 {
                     case "L":
-                        Load(ref img_handler, ref hole_handler);
+                        Load(ref imgHandler, ref holeFinder, ref holeFixer);
                         break;
                     case "E":
-                        EnterHole(img_handler, hole_handler);
+                        if (imgHandler != null)
+                            EnterHole(imgHandler);
                         break;
                     case "F":
-                        FindBoundary(hole_handler);
-                        break;
-                    case "T":
-                        TweakWeightFunction(hole_handler);
+                        if (imgHandler?.Matrix.IsHoled == true)
+                            FindHole(holeFinder);
                         break;
                     case "M":
-                        MendHole(hole_handler);
+                        if (imgHandler?.Matrix.IsHoled == true && holeFinder?.Hole != null)
+                        {
+                            MendHole(holeFinder.Hole, holeFixer);
+                            holeFinder.FindHole(); // will set Hole to null if no hole found
+                        }
                         break;
                     case "S":
-                        SaveImage(img_handler);
+                        if (imgHandler != null)
+                            SaveImage(imgHandler);
                         break;
                     case "Q":
                         return;
+                    default:
+                        Console.WriteLine("No such function; Please choose again");
+                        break;
                 }
                 Console.WriteLine();
                 Console.WriteLine("***************");
             }
         }
 
-        private static void SaveImage(ImageHandler img_handler)
+        private static void SaveImage(ImageHandler imgHandler)
         {
             Console.WriteLine("Please enter a valid path to save the image (including file name)");
             var path = Console.ReadLine();
             if (Directory.Exists(Path.GetDirectoryName(path)))
             {
-                img_handler.SaveChanges(path);
+                imgHandler.SaveChanges(path);
                 Console.WriteLine("Image was successfully saved.");
             }
             else
                 Console.WriteLine("Path directory wasn't found, please try again.");
         }
 
-        private static void MendHole(HoleHandler hole_handler)
+        private static void MendHole(Hole hole, HoleFixer holeFixer)
         {
             Console.WriteLine("Choose:");
-            Console.WriteLine("(1) Mend hole by entering location");
-            Console.WriteLine("(2) Mend hole automatically");
-            Console.WriteLine("(3) Mend hole automatically by approximation");
-            Console.WriteLine("(4) Mend hole automatically by better approximation");
+            Console.WriteLine("(1) Mend hole by default weight function (excellent) ");
+            Console.WriteLine("(2) Mend hole by average approximation (very poor) ");
+            Console.WriteLine("(3) Mend hole by gradient approximation (poor) ");
+            Console.WriteLine("(4) Mend hole by spiral 8-connected approximation (good) ");
 
             var choice = Console.ReadLine();
             try
             {
                 if (choice == "1")
                 {
-                    Console.WriteLine("Enter x-axis start and end location, and y-axis start and end location, separated by a , :");
-                    var input = Console.ReadLine();
-                    var inputStringArray = input.Split(',');
-                    if (inputStringArray.Length > 4)
-                        Console.WriteLine("Too many arguments, please try again");
+                    Console.WriteLine("Choose:");
+                    Console.WriteLine("(U)se default parameters (z = 5, eps = 0.0001)");
+                    Console.WriteLine("(C)hange parameters");
+                    var wChoice = Console.ReadLine().ToUpper();
+                    if (wChoice == "U")
+                    {
+                        holeFixer.FillHoleWithWeightFunction(hole);
+                    }
+                    else if (wChoice == "C")
+                    {
+                        var weightFunction = TweakWeightFunction();
+                        holeFixer.FillHoleWithWeightFunction(hole, weightFunction);
+                    }
                     else
                     {
-
-                        var x_start = Convert.ToInt32(inputStringArray[0]);
-                        var x_end = Convert.ToInt32(inputStringArray[1]);
-                        var y_start = Convert.ToInt32(inputStringArray[2]);
-                        var y_end = Convert.ToInt32(inputStringArray[3]);
-                        hole_handler.FillHole(x_start, x_end, y_start, y_end);
+                        Console.WriteLine("Wrong input");
+                        return;
                     }
                 }
                 else if (choice == "2")
-                    hole_handler.FillHole();
+                    holeFixer.FillHoleApproximateAverage(hole);
                 else if (choice == "3")
-                    hole_handler.FillHoleApproximate();
+                    holeFixer.FillHoleApproximateGradient(hole);
                 else if (choice == "4")
-                    hole_handler.FillHoleBetterApproximate();
+                    holeFixer.FillHoleApproximateConnected(hole);
                 else
+                {
+                    Console.WriteLine("Wrong input");
                     return;
+                }
 
-                Console.WriteLine("Hole mended successfully");
+                Console.WriteLine("Hole mended successfully");                
             }
             catch (Exception exception)
             {
+                Debug.WriteLine(exception.ToString());
                 Console.WriteLine("Something went wrong... Please try again");
             }
         }
 
-        private static void TweakWeightFunction(HoleHandler hole_handler)
+        private static DefaultWeightFunction TweakWeightFunction()
         {
             Console.WriteLine("Enter the Z value:");
             var zString = Console.ReadLine();
@@ -121,29 +139,32 @@ namespace ConsoleApp1
             var epsString = Console.ReadLine();
             var epsFloat = Convert.ToSingle(epsString);
 
-            hole_handler.WeightFunction.SetAdditionalParameters(new Dictionary<string, object>
+            return new DefaultWeightFunction(new Dictionary<string, object>
             {
                 ["z"] = zFloat,
                 ["e"] = epsFloat
-            });
-
-            Console.WriteLine("Parameters changed successfully");
+            });            
         }
 
-        private static void FindBoundary(HoleHandler hole_handler)
+        private static Hole FindHole(HoleFinder holeFinder)
         {
-            hole_handler.FindBoundary(new MooreTrace());
-            if (hole_handler?.Boundary != null)
+            var hole = holeFinder.FindHole();
+            
+            if (hole != null)
             {
-                Console.WriteLine($"Total elements: {hole_handler?.Boundary?.Count}");
-                foreach (var pt in hole_handler.Boundary)
+                Console.WriteLine($"Total holes pixels: {hole.HolePixels.Count}");
+                Console.WriteLine($"Total boundary pixels: {hole.Boundary.Count}");
+                foreach (var pt in hole.Boundary)
                     Console.Write($"({pt.Xi}, {pt.Yi}), ");
+                Console.WriteLine();
             }
+
+            return hole;
         }
 
-        private static void EnterHole(ImageHandler img_handler, HoleHandler hole_handler)
+        private static void EnterHole(ImageHandler imgHandler)
         {
-            var img = img_handler.GetImageMatrix();
+            var img = imgHandler.Matrix;
             Console.WriteLine($"Image size is {img.LenX} x {img.LenY} pixels.");
             Console.WriteLine("Enter x-axis start and end location, and y-axis start and end location, separated by a , :");
             var input = Console.ReadLine();
@@ -154,11 +175,11 @@ namespace ConsoleApp1
             {
                 try
                 {
-                    var x_start = Convert.ToInt32(inputStringArray[0]);
-                    var x_end = Convert.ToInt32(inputStringArray[1]);
-                    var y_start = Convert.ToInt32(inputStringArray[2]);
-                    var y_end = Convert.ToInt32(inputStringArray[3]);
-                    hole_handler.CreateHole(x_start, x_end, y_start, y_end);
+                    var xStart = Convert.ToInt32(inputStringArray[0]);
+                    var xEnd = Convert.ToInt32(inputStringArray[1]);
+                    var yStart = Convert.ToInt32(inputStringArray[2]);
+                    var yEnd = Convert.ToInt32(inputStringArray[3]);
+                    imgHandler.CreateHole(xStart, xEnd, yStart, yEnd);
                     Console.WriteLine("Hole was created successfully");
                 }
                 catch (Exception)
@@ -168,15 +189,15 @@ namespace ConsoleApp1
             }
         }
 
-        private static void Load(ref ImageHandler img_handler, ref HoleHandler hole_handler)
+        private static void Load(ref ImageHandler imgHandler, ref HoleFinder holeFinder, ref HoleFixer holeFixer)
         {
             Console.WriteLine("Please enter a valid path to an image");
             var path = Console.ReadLine();
             if (File.Exists(path))
             {
-                img_handler = new ImageHandler(path);
-                var img = img_handler.GetImageMatrix();
-                hole_handler = new HoleHandler(img);
+                imgHandler = new ImageHandler(path);
+                holeFinder = new HoleFinder(imgHandler.Matrix);
+                holeFixer = new HoleFixer(imgHandler.Matrix);
                 Console.WriteLine("Image was successfully loaded.");
             }
             else

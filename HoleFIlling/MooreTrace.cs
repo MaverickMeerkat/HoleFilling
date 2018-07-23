@@ -1,17 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using HoleFilling.DataObjects;
+using System.Collections.Generic;
 
 namespace HoleFilling
 {
     public class MooreTrace : ITraceAlgorithm
     {
-        public List<Pixel> Trace(IImageMatrix img)
+        public List<Pixel> Trace(ImageMatrix img)
         {
-            Pixel hole_pixel;
+            Pixel holePixel;
             for (int i = 0; i < img.LenX; i++)
                 for (int j = 0; j < img.LenY; j++)
                 {
-                    hole_pixel = img.GetArrayElement(i, j);
-                    if (hole_pixel.Value == -1)                                                               
+                    holePixel = img.GetArrayElement(i, j);
+                    if (holePixel.Value == -1)                                                               
                         // while goto statements are not highly approved of, as they create hard-to-read spaghetti code, 
                         // this (breaking out of nested loops) is one of the rare cases where they should be used, 
                         // as they are more coherent than setting up multiple flags, or using sub-methods that will return. 
@@ -23,27 +24,27 @@ namespace HoleFilling
 
             Hole_Exists:
             // What if hole is in (x,0) ?            
-            if (hole_pixel.Yi == 0)
+            if (holePixel.Yi == 0)
             {
-                var next_pixel = GetNextPixel(hole_pixel, img);
+                var next_pixel = GetNextPixel(holePixel, img);
                 while (next_pixel.Value == -1)
                 {
-                    hole_pixel = next_pixel;
-                    next_pixel = GetNextPixel(hole_pixel, img);
+                    holePixel = next_pixel;
+                    next_pixel = GetNextPixel(holePixel, img);
                 }
-                _start = 4;
+                _start = ClockWise.East;
             }
             else
-                _start = 0;
+                _start = ClockWise.West;
 
-            _8i = _start;
+            _direction = _start;
 
             var Boundary = new List<Pixel>();
 
-            var first = GetClockWisePixel(hole_pixel, img);                        
+            var first = GetClockWisePixel(holePixel, img);                        
             Boundary.Add(first);
 
-            var boundary_pixel = GetClockWisePixel(hole_pixel, img);
+            var boundary_pixel = GetClockWisePixel(holePixel, img);
 
             // stop condition:
             //      A. reach the same first pixel we started from
@@ -51,7 +52,7 @@ namespace HoleFilling
             //          we can make sure we are reaching it while completeing the full circle of the circle-wise turning
             //          i.e. that the turning index (_8i) == 0 (minus the extra step that is taken) 
             //          (also called Jacob's stopping criteria)
-            while (!(boundary_pixel == first && _8i - 1 == _start))
+            while (!(boundary_pixel == first && _direction - 1 == _start))
             {
                 if (boundary_pixel.Value != -1)
                 {
@@ -61,9 +62,9 @@ namespace HoleFilling
                 else
                 {
                     Backtrack();
-                    hole_pixel = boundary_pixel;
+                    holePixel = boundary_pixel;
                 }
-                boundary_pixel = GetClockWisePixel(hole_pixel, img);
+                boundary_pixel = GetClockWisePixel(holePixel, img);
             }
 
             return Boundary;
@@ -80,7 +81,7 @@ namespace HoleFilling
         //      |sw | s |se |
         //      +---+---+---+
 
-        private int[,] _8connected = new int[,] {
+        private int[,] _directionOffset = new int[,] {
             {0, -1},    // 0 = w
             {-1, -1},   // 1 = nw
             {-1, 0},    // 2 = n
@@ -91,30 +92,30 @@ namespace HoleFilling
             {1, -1},    // 7 = sw    
         };
 
-        private int _start; // how we first started the trip, 0 (west) for most cases, 4 (east) for holes touching west edge of image
-        private int _8i;    // index to keep where are we in the clock-wise clock 
-                            // 0 - w, 1 - nw, 2 - n, 3 - ne, 4 - e, 5 - se, 6 - s, 7 - sw
+        private ClockWise _start;       // how we first started the trip, 0 (west) for most cases, 4 (east) for holes touching west edge of image
+        private ClockWise _direction;   // index to keep where are we in the clock-wise clock 
+                                        // 0 - w, 1 - nw, 2 - n, 3 - ne, 4 - e, 5 - se, 6 - s, 7 - sw
 
-        private Pixel GetClockWisePixel(Pixel input, IImageMatrix img)
+        private Pixel GetClockWisePixel(Pixel input, ImageMatrix img)
         {
-            int new_x, new_y;
+            int newX, newY;
             do
             {
-                var x_offset = _8connected[_8i, 0];
-                var y_offset = _8connected[_8i, 1];
+                var x_offset = _directionOffset[(int)_direction, 0];
+                var y_offset = _directionOffset[(int)_direction, 1];
+                
+                _direction = (ClockWise)((int)(_direction + 1) % 8);
 
-                _8i = (_8i + 1) % 8;
-
-                new_x = input.Xi + x_offset;
-                new_y = input.Yi + y_offset;
+                newX = input.Xi + x_offset;
+                newY = input.Yi + y_offset;
             }
             // if edge pixels, move to next clockwise
-            while (new_x < 0 || new_x >= img.LenX || new_y < 0 || new_y >= img.LenY);
+            while (newX < 0 || newX >= img.LenX || newY < 0 || newY >= img.LenY);
 
-            return img.GetArrayElement(new_x, new_y);
+            return img.GetArrayElement(newX, newY);
         }
 
-        private Pixel GetNextPixel(Pixel input, IImageMatrix img)
+        private Pixel GetNextPixel(Pixel input, ImageMatrix img)
         {
             if (input.Yi + 1 < img.LenY)
             {
@@ -128,6 +129,9 @@ namespace HoleFilling
                 return null;            
         }
 
+        private const int BACKTRACK_STRAIGHT = 5;
+        private const int BACKTRACK_DIAGONAL = 4;
+
         private void Backtrack()
         {
             // We want to go back to the last connected pixel we were in.
@@ -136,15 +140,15 @@ namespace HoleFilling
             // we could return one less to the next connected pixel not yet covered, and remove Jacob's stopping criteria...
 
             // There can be 2 cases where a new hole pixel was found in: 
-            // diagonal - we will want to go counter clock 3 (+1 of the already advanced _8i) = -4 = +4
-            //            _8i index will be +1, i.e. 2,4,6 or 0
             // straight - we will want to go counter clock 2 (+1 of the already advanced _8i) = -3 = +5
-            //            _8i index will be +1, i.e. 1,3,5 or 7
+            // diagonal - we will want to go counter clock 3 (+1 of the already advanced _8i) = -4 = +4
 
-            if (_8i % 2 == 1)
-                _8i = (_8i + 5) % 8;
+            if ((int)_direction % 2 == 1)
+                // straight - _direction index will be in 1,3,5 or 7
+                _direction = (ClockWise)((int)(_direction + BACKTRACK_STRAIGHT) % 8);
             else
-                _8i = (_8i + 4) % 8;
+                // diagonal - _direction index will be in 2,4,6 or 0
+                _direction = (ClockWise)((int)(_direction + BACKTRACK_DIAGONAL) % 8);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HoleFilling;
+using HoleFilling.DataObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HoleFillingTests
@@ -8,7 +9,7 @@ namespace HoleFillingTests
     [TestClass]
     public class MooreTraceTests
     {
-        private HoleHandler ArrangeHoleHandler(float[,] t)
+        private HoleFinder ArrangeHoleHandler(float[,] t)
         {
             ImageMatrix img = new ImageMatrix(t);
             var weightFunc = new DefaultWeightFunction(new Dictionary<string, object>
@@ -16,10 +17,10 @@ namespace HoleFillingTests
                 ["z"] = 5,
                 ["e"] = 0.0001
             });
-            return new HoleHandler(img, weightFunc);
+            return new HoleFinder(img);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void BasicSanityTest()
         {
             // arrange
@@ -29,16 +30,18 @@ namespace HoleFillingTests
                 { 0.1F, -1F, 0.3F },
                 { 0.1F, 0.2F, 0.3F }
             };
-            var hole_handler = ArrangeHoleHandler(t);
+
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 8);
+            Assert.AreEqual(hole.Boundary.Count, 8);
+            Assert.AreEqual(hole.HolePixels.Count, 1);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void BasicTestTest()
         {
             // arrange
@@ -51,16 +54,17 @@ namespace HoleFillingTests
                 { 0.5F, 0.6F, 0.6F, 0.6F, 0.7F }
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 16);
+            Assert.AreEqual(hole.Boundary.Count, 16);
+            Assert.AreEqual(hole.HolePixels.Count, 5);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void DumbbellShapeTest()
         {
             // arrange
@@ -75,16 +79,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 18);
+            Assert.AreEqual(hole.Boundary.Count, 18);
+            Assert.AreEqual(hole.HolePixels.Count, 9);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Enclave1Test()
         {
             // arrange
@@ -99,16 +104,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 27);
+            Assert.AreEqual(hole.Boundary.Count, 27);
+            Assert.AreEqual(hole.HolePixels.Count, 7);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Enclave2Test()
         {
             // arrange
@@ -123,16 +129,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 30);
+            Assert.AreEqual(hole.Boundary.Count, 30);
+            Assert.AreEqual(hole.HolePixels.Count, 8);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges1Test()
         {
             // arrange
@@ -147,16 +154,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 5);
+            Assert.AreEqual(hole.Boundary.Count, 5);
+            Assert.AreEqual(hole.HolePixels.Count, 4);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges2Test()
         {
             // arrange
@@ -171,16 +179,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 5);
+            Assert.AreEqual(hole.Boundary.Count, 5);
+            Assert.AreEqual(hole.HolePixels.Count, 4);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges3Test()
         {
             // arrange
@@ -195,16 +204,17 @@ namespace HoleFillingTests
                 { -1F, -1F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 5);
+            Assert.AreEqual(hole.Boundary.Count, 5);
+            Assert.AreEqual(hole.HolePixels.Count, 4);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges4Test()
         {
             // arrange
@@ -219,16 +229,17 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, -1F, -1F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 5);
+            Assert.AreEqual(hole.Boundary.Count, 5);
+            Assert.AreEqual(hole.HolePixels.Count, 4);
         }
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges5Test()
         {
             // arrange
@@ -243,17 +254,18 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 7);
+            Assert.AreEqual(hole.Boundary.Count, 7);
+            Assert.AreEqual(hole.HolePixels.Count, 6);
         }
 
 
-        [TestMethod, Timeout(5000)]
+        [TestMethod, Timeout(1000)]
         public void Edges6Test()
         {
             // arrange
@@ -268,13 +280,14 @@ namespace HoleFillingTests
                 { -1F, -1F, -1F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var hole_handler = ArrangeHoleHandler(t);
+            var holeFinder = ArrangeHoleHandler(t);
 
             // act        
-            var bound = hole_handler.FindBoundary(new MooreTrace());
+            var hole = holeFinder.FindHole(new MooreTrace());
 
             // assert
-            Assert.AreEqual(bound.Count, 7);
+            Assert.AreEqual(hole.Boundary.Count, 7);
+            Assert.AreEqual(hole.HolePixels.Count, 6);
         }
     }
 }

@@ -1,23 +1,21 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
+using HoleFilling.DataObjects;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HoleFilling
 {
     /// <summary>
-    /// Uses OpenCV nuget package to load image, transform it to an ImageMatrix, and save any changes made to that matrix.
+    /// Uses Emgu (OpenCV nuget package) to load image as grayscale and transform it to an ImageMatrix.
+    /// You can also create holes in the image and save any changes made to that matrix.
     /// </summary>
     public class ImageHandler
     {
-        private Emgu.CV.Image<Gray, Byte> _img;
-        private int _rows, _cols;
-        private ImageMatrix _arrayImage;
+        private readonly Emgu.CV.Image<Gray, Byte> _img;
+        private readonly int _rows, _cols;
+        private readonly string _path;
 
-        public string Path { get; set; }        
+        public ImageMatrix Matrix { get; }
 
         // CTOR
         public ImageHandler(string path)
@@ -26,29 +24,24 @@ namespace HoleFilling
             _img = mat.ToImage<Gray, Byte>();
             _rows = _img.Rows;
             _cols = _img.Cols;
-            Path = path;
+            _path = path;
+            Matrix = LoadImageMatrix();
         }
 
-        /// <summary>
-        /// Converts the loaded image into a Matrix with float value between [0,1]
-        /// </summary>
-        /// <returns></returns>
-        public ImageMatrix GetImageMatrix()
+        //Converts the loaded image into a Matrix with float value between [0,1]
+        private ImageMatrix LoadImageMatrix()
         {
-            if (_arrayImage == null)
-            {
-                float[,] newArray = new float[_rows, _cols];
-                for (int i = 0; i < _rows; i++)
-                    for (int j = 0; j < _cols; j++)
-                        newArray[i, j] = Convert.ToSingle(_img.Data[i, j, 0]) / 255;
+            float[,] newArray = new float[_rows, _cols];
+            for (int i = 0; i < _rows; i++)
+                for (int j = 0; j < _cols; j++)
+                    newArray[i, j] = Convert.ToSingle(_img.Data[i, j, 0]) / 255;
 
-                _arrayImage = new ImageMatrix(newArray);
-            }
-            return _arrayImage;
+            return new ImageMatrix(newArray);
         }
 
         /// <summary>
         /// Saves an image to file.
+        /// If image is holed, converts hole to white space.
         /// </summary>
         /// <param name="suppliedPath">If no path is specified, will overwrite original file</param>
         public void SaveChanges(string suppliedPath = null)
@@ -56,7 +49,7 @@ namespace HoleFilling
             for (int i = 0; i < _rows; i++)
                 for (int j = 0; j < _cols; j++)
                 {
-                    var val = _arrayImage.GetArrayElement(i, j).Value;
+                    var val = Matrix.GetArrayElement(i, j).Value;
 
                     // we cannot put -1 in the real image
                     if (val == -1)
@@ -68,10 +61,28 @@ namespace HoleFilling
             var t = _img.ToBitmap();
 
             if (suppliedPath == null)
-                t.Save(Path);
+                t.Save(_path);
             else
                 t.Save(suppliedPath);
-        }           
+        }
 
+        /// <summary>
+        /// Creates a hole in an image matrix
+        /// </summary>
+        /// <param name="xStart"></param>
+        /// <param name="xStop"></param>
+        /// <param name="yStart"></param>
+        /// <param name="yStop"></param>
+        public void CreateHole(int xStart, int xStop, int yStart, int yStop)
+        {
+            for (int i = xStart; i < xStop; i++)
+                for (int j = yStart; j < yStop; j++)
+                {
+                    var pix = Matrix.GetArrayElement(i, j);
+                    pix.Value = -1;
+                }
+
+            Matrix.IsHoled = true;
+        }
     }
 }
