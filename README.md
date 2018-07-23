@@ -47,9 +47,9 @@ Given an image of K x L pixels, with a hole of N pixels, and a boundary of M pix
 
 2) Finding the boundary of the hole (using [Moore's algorithm](http://www.imageprocessingplace.com/downloads_V3/root_downloads/tutorials/contour_tracing_Abeer_George_Ghuneim/moore.html)): 
 
-  In the best case, the shape is a perfect square. The boundary tracing algorithm will be around 12√N (√N for each side, times 4 sides, times 3 for the algorithm redundancy - i.e. if we go right and down and find a hole pixel, we will now have to go up, right and down - just to get to the next hole - that's 3 steps). This is O(√N).
+   In the best case, the shape is a perfect square. The boundary tracing algorithm will be around 12√N (√N for each side, times 4 sides, times 3 for the algorithm redundancy - i.e. if we go right and down and find a hole pixel, we will now have to go up, right and down - just to get to the next hole - that's 3 steps). This is O(√N).
 
-  In the worst case, the shape is a perfect diagonal. Tracing algorithm will be around 8N (we will traverse the diagonal from two of its sides (x2) and for ~all hole pixels we will require 4 steps to move from one hole-pixel to another).  This is O(N).
+   In the worst case, the shape is a perfect diagonal. Tracing algorithm will be around 8N (we will traverse the diagonal from two of its sides (x2) and for ~all hole pixels we will require 4 steps to move from one hole-pixel to another).  This is O(N).
 
 3) O(M) is between O(√N) (best case - square) to O(N) (worst case - diagonal).
 
@@ -57,6 +57,6 @@ Given an image of K x L pixels, with a hole of N pixels, and a boundary of M pix
 
 5) The filling algorithm:
 
-  Using the default weight function will require to calculate M values for each hole, i.e. it's of O(MxN). Since O(M) is between O(√N) to O(N) the total magnitude is between O(N^1.5) to O(N^2)  
+   Using the default weight function will require to calculate M values for each hole, i.e. it's of O(MxN). Since O(M) is between O(√N) to O(N) the total magnitude is between O(N^1.5) to O(N^2)  
 
-  Using the 8-connected-spiral best approximation will require only a constant multiplication of N (around 3-4 and no more than 8) - hence will take O(N)
+   Using the 8-connected-spiral best approximation will require only a constant multiplication of N (around 3-4 and no more than 8) - hence will take O(N)
