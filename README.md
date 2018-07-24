@@ -67,6 +67,6 @@ Given an image of K x L pixels, with a hole of N pixels, and a boundary of M pix
 
 # Current Open Issues
 
- * Entire image is a hole - might send the app into a never-ending loop (freeze).
+ * ~~Entire image is a hole - might send the app into a never-ending loop (freeze).~~ **FIXED**
  
  * Hole covers atleast 1 entire row/column of an edge - boundary will be ok, but finding covering rectangle will miss some/all hole-pixels.
