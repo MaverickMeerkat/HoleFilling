@@ -7,12 +7,12 @@ namespace HoleFilling
     {
         public List<Pixel> Trace(ImageMatrix img)
         {
-            Pixel holePixel;
+            Pixel firstHolePixel;
             for (int i = 0; i < img.LenX; i++)
                 for (int j = 0; j < img.LenY; j++)
                 {
-                    holePixel = img.GetArrayElement(i, j);
-                    if (holePixel.Value == -1)                                                               
+                    firstHolePixel = img.GetArrayElement(i, j);
+                    if (firstHolePixel.Value == -1)                                                               
                         // while goto statements are not highly approved of, as they create hard-to-read spaghetti code, 
                         // this (breaking out of nested loops) is one of the rare cases where they should be used, 
                         // as they are more coherent than setting up multiple flags, or using sub-methods that will return. 
@@ -25,6 +25,7 @@ namespace HoleFilling
             Hole_Exists:            
             ClockWise _start; // how we first start the trip
             _direction = ClockWise.West; // initial position
+            var holePixel = firstHolePixel;
             // What if hole is in (x,0) ? We'll go around it clockwise until we find a non-hole pixel
             if (holePixel.Y == 0)
             {
@@ -34,6 +35,9 @@ namespace HoleFilling
                     Backtrack();
                     holePixel = nextPixel;
                     nextPixel = GetClockWisePixel(holePixel, img);
+
+                    if (holePixel == firstHolePixel) // entire image is one big hole
+                        return null;
                 }
                 _direction = (ClockWise)((int)(_direction + 7) % 8);
             }

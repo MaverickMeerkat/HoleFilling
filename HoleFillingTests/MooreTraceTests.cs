@@ -302,5 +302,28 @@ namespace HoleFillingTests
             // Assert.AreEqual(hole.HolePixels.Count, 4); - will fail, CoveringRectangle algorithm can't deal with this scenario
         }
 
+        [TestMethod, Timeout(1000)]
+        public void Edges8Test()
+        {
+            // arrange
+            var t = new float[,]
+            {
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+
+            };
+
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
+
+            // act        
+            var hole = holeFinder.FindHole(new MooreTrace());
+
+            // assert
+            Assert.IsNull(hole);
+        }
     }
 }
