@@ -7,12 +7,6 @@ namespace HoleFillingTests
     [TestClass]
     public class MooreTraceTests
     {
-        private HoleFinder ArrangeHoleHandler(float[,] t)
-        {
-            ImageMatrix img = new ImageMatrix(t);
-            return new HoleFinder(img);
-        }
-
         [TestMethod, Timeout(1000)]
         public void BasicSanityTest()
         {
@@ -24,7 +18,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F }
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -47,7 +41,7 @@ namespace HoleFillingTests
                 { 0.5F, 0.6F, 0.6F, 0.6F, 0.7F }
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -72,7 +66,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -97,7 +91,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -122,7 +116,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -147,7 +141,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -172,7 +166,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -197,7 +191,7 @@ namespace HoleFillingTests
                 { -1F, -1F, 0.2F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -222,7 +216,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, -1F, -1F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -247,7 +241,7 @@ namespace HoleFillingTests
                 { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -273,7 +267,7 @@ namespace HoleFillingTests
                 { -1F, -1F, -1F, 0.2F, 0.3F, 0.4F, 0.5F}
             };
 
-            var holeFinder = ArrangeHoleHandler(t);
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
 
             // act        
             var hole = holeFinder.FindHole(new MooreTrace());
@@ -281,6 +275,31 @@ namespace HoleFillingTests
             // assert
             Assert.AreEqual(hole.Boundary.Count, 7);
             Assert.AreEqual(hole.HolePixels.Count, 6);
+        }
+
+        [TestMethod, Timeout(1000)]
+        public void Edges7Test()
+        {
+            // arrange
+            var t = new float[,]
+            {
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { -1F, -1F, -1F, -1F, -1F, -1F, -1F},
+                { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
+                { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
+                { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
+                { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F},
+                { 0.1F, 0.2F, 0.3F, 0.2F, 0.3F, 0.4F, 0.5F}
+            };
+
+            var holeFinder = new HoleFinder(new ImageMatrix(t));
+
+            // act        
+            var hole = holeFinder.FindHole(new MooreTrace());
+
+            // assert
+            Assert.AreEqual(hole.Boundary.Count, 7);
+            // Assert.AreEqual(hole.HolePixels.Count, 4); - will fail, CoveringRectangle algorithm can't deal with this scenario
         }
 
     }

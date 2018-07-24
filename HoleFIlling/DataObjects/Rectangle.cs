@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HoleFilling.DataObjects
+﻿namespace HoleFilling.DataObjects
 {
     /// <summary>
     /// Holds the 4 edge pixels of a rectangle

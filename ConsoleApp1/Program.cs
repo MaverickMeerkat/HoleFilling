@@ -11,7 +11,6 @@ namespace HoleFillingConsole
     {
         static void Main(string[] args)
         {
-
             ImageHandler imgHandler = null;
             HoleFinder holeFinder = null;
             HoleFixer holeFixer = null;
