@@ -12,11 +12,6 @@ namespace HoleFillingTests
         private HoleFinder ArrangeHoleHandler(float[,] t)
         {
             ImageMatrix img = new ImageMatrix(t);
-            var weightFunc = new DefaultWeightFunction(new Dictionary<string, object>
-            {
-                ["z"] = 5,
-                ["e"] = 0.0001
-            });
             return new HoleFinder(img);
         }
 
