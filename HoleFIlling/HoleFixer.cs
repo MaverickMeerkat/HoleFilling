@@ -111,8 +111,8 @@ namespace HoleFilling
                 || hole.CoveringRectangle.BottomRight.Value == -1)
                 throw new Exception("Better-Approximation does not work if the hole touches the edges of the image.");
 
-            var horizontalDistance = hole.CoveringRectangle.BottomRight.Yi - hole.CoveringRectangle.TopLeft.Yi;
-            var verticalDistance = hole.CoveringRectangle.BottomRight.Xi - hole.CoveringRectangle.TopLeft.Xi;
+            var horizontalDistance = hole.CoveringRectangle.BottomRight.Y - hole.CoveringRectangle.TopLeft.Y;
+            var verticalDistance = hole.CoveringRectangle.BottomRight.X - hole.CoveringRectangle.TopLeft.X;
 
             foreach (var pix in hole.HolePixels)
             {
@@ -123,17 +123,17 @@ namespace HoleFilling
                 if (distanceToStart <= distanceToEnd)
                 {
                     var valueY = (hole.CoveringRectangle.TopRight.Value - hole.CoveringRectangle.TopLeft.Value) *
-                        (pix.Yi - hole.CoveringRectangle.TopLeft.Yi) / horizontalDistance;
+                        (pix.Y - hole.CoveringRectangle.TopLeft.Y) / horizontalDistance;
                     var valueX = (hole.CoveringRectangle.BottomLeft.Value - hole.CoveringRectangle.TopLeft.Value) *
-                        (pix.Xi - hole.CoveringRectangle.TopLeft.Xi) / verticalDistance;
+                        (pix.X - hole.CoveringRectangle.TopLeft.X) / verticalDistance;
                     pixValue = hole.CoveringRectangle.TopLeft.Value + valueX + valueY;
                 }
                 else
                 {
                     var valueY = (hole.CoveringRectangle.BottomLeft.Value - hole.CoveringRectangle.BottomRight.Value) *
-                        (hole.CoveringRectangle.BottomRight.Yi - pix.Yi) / horizontalDistance;
+                        (hole.CoveringRectangle.BottomRight.Y - pix.Y) / horizontalDistance;
                     var valueX = (hole.CoveringRectangle.TopRight.Value - hole.CoveringRectangle.BottomRight.Value) *
-                        (hole.CoveringRectangle.BottomRight.Xi - pix.Xi) / verticalDistance;
+                        (hole.CoveringRectangle.BottomRight.X - pix.X) / verticalDistance;
                     pixValue = hole.CoveringRectangle.BottomRight.Value + valueX + valueY;
                 }
 

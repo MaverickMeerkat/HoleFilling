@@ -11,6 +11,7 @@ namespace HoleFillingConsole
     {
         static void Main(string[] args)
         {
+
             ImageHandler imgHandler = null;
             HoleFinder holeFinder = null;
             HoleFixer holeFixer = null;
@@ -155,7 +156,7 @@ namespace HoleFillingConsole
                 Console.WriteLine($"Total holes pixels: {hole.HolePixels.Count}");
                 Console.WriteLine($"Total boundary pixels: {hole.Boundary.Count}");
                 foreach (var pt in hole.Boundary)
-                    Console.Write($"({pt.Xi}, {pt.Yi}), ");
+                    Console.Write($"({pt.X}, {pt.Y}), ");
                 Console.WriteLine();
             }
 

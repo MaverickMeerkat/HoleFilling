@@ -57,11 +57,11 @@ namespace HoleFilling.DataObjects
         /// <returns></returns>
         public Pixel GetDistantElement(Pixel start, int x, int y)
         {
-            if (start.Xi + x > LenX || start.Xi + x < 0 ||
-                start.Yi + y > LenY || start.Yi + y < 0)
+            if (start.X + x > LenX || start.X + x < 0 ||
+                start.Y + y > LenY || start.Y + y < 0)
                 return null;
 
-            return GetArrayElement(start.Xi + x, start.Yi + y);
+            return GetArrayElement(start.X + x, start.Y + y);
         }
     }
 }

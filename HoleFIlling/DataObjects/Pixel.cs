@@ -14,12 +14,12 @@ namespace HoleFilling.DataObjects
         /// <summary>
         /// Row
         /// </summary>
-        public int Xi { get; }
+        public int X { get; }
 
         /// <summary>
         /// Column
         /// </summary>
-        public int Yi { get; }
+        public int Y { get; }
 
         /// <summary>
         /// Normalized grayscale value of [0,1], or -1 if holed
@@ -28,8 +28,8 @@ namespace HoleFilling.DataObjects
 
         public Pixel(int x, int y, float val)
         {
-            Xi = x;
-            Yi = y;
+            X = x;
+            Y = y;
             Value = val;
         }
     }

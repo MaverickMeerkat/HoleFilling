@@ -1,9 +1,5 @@
 ﻿using HoleFilling.DataObjects;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HoleFilling
 {
@@ -61,15 +57,15 @@ namespace HoleFilling
 
             foreach (var pix in boundary)
             {
-                if (pix.Xi < min[0])
-                    min[0] = pix.Xi;
-                if (pix.Xi > max[0])
-                    max[0] = pix.Xi;
-                if (pix.Yi < min[1])
-                    min[1] = pix.Yi;
-                if (pix.Yi > max[1])
-                    max[1] = pix.Yi;
-            }
+                if (pix.X < min[0])
+                    min[0] = pix.X;
+                if (pix.X > max[0])
+                    max[0] = pix.X;
+                if (pix.Y < min[1])
+                    min[1] = pix.Y;
+                if (pix.Y > max[1])
+                    max[1] = pix.Y;
+            }            
 
             var coveringRectangle = new Rectangle(
                 _image.GetArrayElement(min[0], min[1]),
@@ -87,8 +83,8 @@ namespace HoleFilling
 
             var list = new List<Pixel>();
             // go over that rectangle and push hole pixels to list
-            for (int i = coverRectangle.TopLeft.Xi; i <= coverRectangle.BottomRight.Xi; i++)
-                for (int j = coverRectangle.TopLeft.Yi; j <= coverRectangle.BottomRight.Yi; j++)
+            for (int i = coverRectangle.TopLeft.X; i <= coverRectangle.BottomRight.X; i++)
+                for (int j = coverRectangle.TopLeft.Y; j <= coverRectangle.BottomRight.Y; j++)
                 {
                     var pix = _image.GetArrayElement(i, j);
                     if (pix.Value == -1)

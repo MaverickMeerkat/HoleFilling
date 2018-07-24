@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HoleFilling;
+﻿using HoleFilling;
 using HoleFilling.DataObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -284,5 +282,6 @@ namespace HoleFillingTests
             Assert.AreEqual(hole.Boundary.Count, 7);
             Assert.AreEqual(hole.HolePixels.Count, 6);
         }
+
     }
 }

@@ -23,10 +23,10 @@ namespace HoleFilling
 
         public SpiralTraverser(Rectangle rectangle, ImageMatrix image)
         {
-            _upperBound = rectangle.TopLeft.Xi;
-            _leftBound = rectangle.TopLeft.Yi;
-            _rightBound = rectangle.BottomRight.Yi;
-            _bottomBound = rectangle.BottomRight.Xi;
+            _upperBound = rectangle.TopLeft.X;
+            _leftBound = rectangle.TopLeft.Y;
+            _rightBound = rectangle.BottomRight.Y;
+            _bottomBound = rectangle.BottomRight.X;
 
             _x = _upperBound;
             _y = _leftBound;
