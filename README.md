@@ -64,3 +64,9 @@ Given an image of K x L pixels, with a hole of N pixels, and a boundary of M pix
    Using the default weight function will require to calculate M values for each hole, i.e. it's of O(MxN). Since O(M) is between O(√N) to O(N) the total magnitude is between O(N^1.5) to O(N^2)  
 
    Using the 8-connected-spiral best approximation will require only a constant multiplication of N (around 3-4 and no more than 8) - hence will take O(N)
+
+# Current Open Issues
+
+ * Entire image is a hole - might send the app into a never-ending loop (freeze).
+ 
+ * Hole covers atleast 1 entire row/column of an edge - boundary will be ok, but finding covering rectangle will miss some/all hole-pixels.
